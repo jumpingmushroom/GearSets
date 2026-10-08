@@ -3,7 +3,10 @@ using System.Collections.Generic;
 
 namespace GearSets.Core.Model
 {
-    /// <summary>Which parts of the worn gear a capture records. Excluded parts become Ignore.</summary>
+    /// <summary>
+    /// Which parts of the worn gear a capture records. Excluded parts become Ignore, remembering
+    /// what was there (the item, or WasEmpty) so the tile can be switched back on later.
+    /// </summary>
     public sealed class CaptureMask
     {
         public readonly HashSet<SlotKind> Slots = new HashSet<SlotKind>();
@@ -49,7 +52,8 @@ namespace GearSets.Core.Model
     public static class SetCapture
     {
         /// <summary>
-        /// Records what is worn (and hotbar row 0) into <paramref name="into"/>. Untagged equippables
+        /// Records what is worn (and hotbar row 0) into <paramref name="into"/>; excluded parts are
+        /// recorded as remembered Ignores, tagged like the rest. Untagged equippables
         /// get a new tag; when another item carries the same tag as a captured one (a clone), the
         /// other copy gets a new tag so the set keeps following this one.
         /// </summary>
@@ -60,29 +64,27 @@ namespace GearSets.Core.Model
 
             foreach (SlotKind k in GearSet.AllSlots)
             {
-                if (!mask.Slots.Contains(k))
-                {
-                    into.Slots[k] = SlotEntry.Ignore;
-                    continue;
-                }
                 ItemFacts worn = snap.WornIn(Slots.Worn(k));
-                into.Slots[k] = worn == null ? SlotEntry.Empty : SlotEntry.Of(Ref(worn, snap, tags, assigned, newTag));
+                ItemRef r = worn == null ? null : Ref(worn, snap, tags, assigned, newTag);
+                if (!mask.Slots.Contains(k))
+                    into.Slots[k] = SlotEntry.Create(EntryMode.Ignore, r, r == null);
+                else
+                    into.Slots[k] = r == null ? SlotEntry.Empty : SlotEntry.Of(r);
             }
 
-            if (!mask.Utilities)
-                into.Utilities = UtilityEntry.Ignore;
-            else
-            {
-                var refs = new List<ItemRef>();
-                foreach (ItemFacts u in snap.WornUtilities())
-                    refs.Add(Ref(u, snap, tags, assigned, newTag));
-                into.Utilities = UtilityEntry.Of(refs);
-            }
+            var refs = new List<ItemRef>();
+            foreach (ItemFacts u in snap.WornUtilities())
+                refs.Add(Ref(u, snap, tags, assigned, newTag));
+            into.Utilities = mask.Utilities ? UtilityEntry.Of(refs) : UtilityEntry.Create(EntryMode.Ignore, refs, refs.Count == 0);
 
             for (int i = 0; i < GearSet.HotbarSize; i++)
             {
-                ItemFacts f = mask.Hotbar[i] ? snap.At(i, 0) : null;
-                into.Hotbar[i] = f == null ? SlotEntry.Ignore : SlotEntry.Of(Ref(f, snap, tags, assigned, newTag));
+                ItemFacts f = snap.At(i, 0);
+                ItemRef r = f == null ? null : Ref(f, snap, tags, assigned, newTag);
+                if (r == null)
+                    into.Hotbar[i] = SlotEntry.Ignore;
+                else
+                    into.Hotbar[i] = mask.Hotbar[i] ? SlotEntry.Of(r) : SlotEntry.Create(EntryMode.Ignore, r, false);
             }
             return assigned;
         }
