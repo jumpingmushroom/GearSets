@@ -16,6 +16,7 @@ namespace GearSets.Patches
                     return;
                 GearSetsTab.Ensure(__instance);
                 GearSetsWindow.OnInventoryShow(__instance);
+                WindowContent.EnsureBuilt();
             }
             catch (Exception e)
             {
