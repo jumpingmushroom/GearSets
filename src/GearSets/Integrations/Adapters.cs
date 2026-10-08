@@ -7,6 +7,7 @@ namespace GearSets.Integrations
         public static void Init(Harmony harmony)
         {
             ExtraSlotsAdapter.Init();
+            ConfigManagerAdapter.Init();
         }
     }
 }

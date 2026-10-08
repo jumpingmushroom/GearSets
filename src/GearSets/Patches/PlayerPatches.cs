@@ -1,5 +1,6 @@
 using System;
 using GearSets.Core;
+using GearSets.UI;
 using HarmonyLib;
 
 namespace GearSets.Patches
@@ -19,6 +20,30 @@ namespace GearSets.Patches
             {
                 GearSetsPlugin.WarnOnce("GearSets: loading sets failed", e);
             }
+        }
+    }
+
+    /// <summary>While the radial is open, mouse movement aims the radial instead of the camera.</summary>
+    [HarmonyPatch(typeof(Player), nameof(Player.SetMouseLook))]
+    internal static class RadialLookPatch
+    {
+        private static bool Prefix()
+        {
+            return !RadialPicker.IsOpen;
+        }
+    }
+
+    /// <summary>No attacks, blocks, jumps or dodges while picking a set; walking still works.</summary>
+    [HarmonyPatch(typeof(Player), nameof(Player.SetControls))]
+    internal static class RadialControlsPatch
+    {
+        private static void Prefix(ref bool attack, ref bool attackHold, ref bool secondaryAttack, ref bool secondaryAttackHold,
+            ref bool block, ref bool blockHold, ref bool jump, ref bool dodge)
+        {
+            if (!RadialPicker.IsOpen)
+                return;
+            attack = attackHold = secondaryAttack = secondaryAttackHold = false;
+            block = blockHold = jump = dodge = false;
         }
     }
 }
