@@ -21,6 +21,15 @@ namespace GearSets.Tests
         }
 
         [Fact]
+        public void NamesCantContainAngleBrackets()
+        {
+            var book = new SetBook();
+            Assert.Equal("Name can't contain < or >.", book.NameError("<b>Bold", null));
+            Assert.Equal("Name can't contain < or >.", book.NameError("a > b", null));
+            Assert.Null(book.NameError("Mining & Farming", null));
+        }
+
+        [Fact]
         public void FullBookRefusesMore()
         {
             var book = new SetBook { MaxSets = 1 };

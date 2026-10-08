@@ -36,6 +36,8 @@ namespace GearSets.Core.Model
                 return "Name can't be empty.";
             if (n.Length > GearSet.MaxNameLength)
                 return "Name is longer than " + GearSet.MaxNameLength + " characters.";
+            if (n.IndexOf('<') >= 0 || n.IndexOf('>') >= 0)
+                return "Name can't contain < or >."; // names are shown as rich text
             GearSet other = FindByName(n);
             if (other != null && other.Id != exceptId)
                 return "A set named " + other.Name + " already exists.";

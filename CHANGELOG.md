@@ -8,4 +8,4 @@
 - Hold-H radial picker in the world.
 - Tooltip line and inventory cell marker for set items.
 - Confirmation before dropping or obliterating set items.
-- Integrations: ExtraSlots, Quick Stack Store Sort Trash Restock, MyLittleUI, AutoShield.
+- Integrations: ExtraSlots, Quick Stack Store Sort Trash Restock, MyLittleUI; works alongside AutoShield.

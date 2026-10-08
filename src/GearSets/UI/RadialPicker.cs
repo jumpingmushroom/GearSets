@@ -32,6 +32,7 @@ namespace GearSets.UI
         private static TextMeshProUGUI _title;
         private static TextMeshProUGUI _status;
         private static TextMeshProUGUI _detail;
+        private static TextMeshProUGUI _hint;
         private static readonly List<Node> Nodes = new List<Node>();
         private static readonly List<GearSet> Sets = new List<GearSet>();
         private static readonly List<string> States = new List<string>();
@@ -120,6 +121,7 @@ namespace GearSets.UI
                 node.Icon.enabled = node.Icon.sprite != null;
                 node.Name.text = Sets[i].Name;
             }
+            _hint.text = "Hold <color=#f2a64a>" + PluginConfig.RadialKey.Value + "</color> · point at a set · release to equip · right-click to cancel";
             _aim = Vector2.zero;
             _hover = -1;
             IsOpen = true;
@@ -219,14 +221,13 @@ namespace GearSets.UI
             _detail = UiKit.Text(text, "Detail", 12f, TextAlignmentOptions.Center);
             _detail.color = UiKit.Muted;
 
-            TextMeshProUGUI hint = UiKit.Text(_root, "Hint", 14f, TextAlignmentOptions.Center);
-            var hr = (RectTransform)hint.transform;
+            _hint = UiKit.Text(_root, "Hint", 14f, TextAlignmentOptions.Center);
+            var hr = (RectTransform)_hint.transform;
             hr.anchorMin = new Vector2(0f, 0f);
             hr.anchorMax = new Vector2(1f, 0f);
             hr.pivot = new Vector2(0.5f, 0f);
             hr.anchoredPosition = new Vector2(0f, 60f);
             hr.sizeDelta = new Vector2(0f, 24f);
-            hint.text = "Hold <color=#f2a64a>" + PluginConfig.RadialKey.Value + "</color> · point at a set · release to equip · right-click to cancel";
 
             _root.gameObject.SetActive(false);
         }
