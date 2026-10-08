@@ -10,6 +10,11 @@ namespace GearSets.Core
             if (PluginConfig.Enabled == null || !PluginConfig.Enabled.Value)
                 return;
             Safe("GearSets: swap tick failed", SwapExecutor.Tick);
+            if (InventoryGui.IsVisible())
+            {
+                Safe("GearSets: tab tick failed", () => UI.GearSetsTab.Place(InventoryGui.instance));
+                Safe("GearSets: window tick failed", UI.GearSetsWindow.Tick);
+            }
         }
 
         private static void Safe(string key, Action a)
