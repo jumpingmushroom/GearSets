@@ -35,7 +35,20 @@ namespace GearSets
             PluginConfig.Bind(Config);
 
             Harmony = new Harmony(PluginGuid);
-            Harmony.PatchAll(typeof(GearSetsPlugin).Assembly);
+            // One class at a time: a patch that fails (a game update renamed its target) disables only itself.
+            foreach (Type t in AccessTools.GetTypesFromAssembly(typeof(GearSetsPlugin).Assembly))
+            {
+                if (!Attribute.IsDefined(t, typeof(HarmonyPatch), false))
+                    continue;
+                try
+                {
+                    Harmony.CreateClassProcessor(t).Patch();
+                }
+                catch (Exception e)
+                {
+                    WarnOnce("GearSets: patch " + t.Name + " failed", e);
+                }
+            }
             Integrations.Adapters.Init(Harmony);
             Core.ConsoleCommands.Register();
             PluginConfig.MaxSets.SettingChanged += (s, e) => Core.SetStore.Book.MaxSets = PluginConfig.MaxSets.Value;
