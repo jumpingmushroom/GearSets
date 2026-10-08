@@ -43,7 +43,10 @@ namespace GearSets.UI
             get { return Time.frameCount == _closedFrame; }
         }
 
-        /// <summary>Open Valheim's radial on the sets, as the vanilla radial key would. False if it failed.</summary>
+        /// <summary>
+        /// Open Valheim's radial on the sets, as the vanilla radial key would. False if it failed
+        /// (now Broken) or vanilla declined to open (building tool out); the caller uses Classic.
+        /// </summary>
         public static bool TryOpen()
         {
             try
@@ -54,6 +57,8 @@ namespace GearSets.UI
                 if (_opener == null)
                 {
                     _opener = ScriptableObject.CreateInstance<GearSetsOpenConfig>();
+                    if (_opener == null)
+                        throw new InvalidOperationException("could not create the radial opener");
                     _opener.hideFlags = HideFlags.HideAndDontSave;
                 }
                 _pressedAt = Time.unscaledTime;
@@ -64,7 +69,9 @@ namespace GearSets.UI
                 radial.Open(_opener);
                 if (SetsConfig.Failed)
                     throw new InvalidOperationException("building the set entries failed");
-                return true;
+                // Vanilla refuses to open with a building tool out (RadialBase.Open, place mode):
+                // not a failure, but this press falls back to the Classic ring.
+                return radial.Active;
             }
             catch (Exception e)
             {
@@ -250,7 +257,7 @@ namespace GearSets.UI
             SwapPlan plan = SwapPlanner.Plan(set, snap.Facts);
             HotbarPlan hot = set.HasHotbar ? HotbarPlanner.Plan(set, snap.Facts) : null;
             RadialText.Entry text = RadialText.For(plan, hot, Loc.T);
-            e.Name = set.Name;
+            e.Name = "<noparse>" + set.Name + "</noparse>";
             // Valheim's centre text shows only Name and SubTitle for non-item entries, so the detail
             // goes on a smaller second line; Description is filled too for anything that reads it.
             e.SubTitle = Status(text) + "\n<size=75%>" + text.Description + "</size>";
@@ -279,6 +286,8 @@ namespace GearSets.UI
         {
             try
             {
+                if (!PluginConfig.Enabled.Value)
+                    return true; // mod switched off: just close
                 GearSet set = Find(id);
                 if (set == null)
                 {

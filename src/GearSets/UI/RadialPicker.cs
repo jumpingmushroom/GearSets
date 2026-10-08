@@ -52,7 +52,7 @@ namespace GearSets.UI
                 if (PluginConfig.RadialEnabled.Value && Keys.Down(PluginConfig.RadialKey.Value)
                     && !BuiltInRadial.JustClosedByKey && CanOpen())
                 {
-                    // Built-in first; if it throws (e.g. after a game update) Classic takes over.
+                    // Built-in first; Classic if it throws (e.g. after a game update) or vanilla won't open.
                     if (!BuiltInRadial.UseForKey || !BuiltInRadial.TryOpen())
                         Open();
                 }
