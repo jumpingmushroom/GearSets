@@ -109,7 +109,9 @@ namespace GearSets.UI
                 if (_set == null)
                     return;
                 SetActions.Update(_set);
-                Player.m_localPlayer?.Message(MessageHud.MessageType.TopLeft, _set.Name + " updated from what you are wearing.");
+                Player p = Player.m_localPlayer;
+                if (p != null)
+                    p.Message(MessageHud.MessageType.TopLeft, _set.Name + " updated from what you are wearing.");
             });
             UiKit.Size(update.gameObject, 150f, 36f);
             Button rename = UiKit.Button(actions, "Rename", template, "Rename / icon", () =>

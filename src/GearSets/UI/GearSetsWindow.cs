@@ -161,7 +161,7 @@ namespace GearSets.UI
 
             Body = UiKit.Rect("Body", Root);
             UiKit.Row(Body.gameObject, 14f, new RectOffset(14, 14, 14, 14)).childAlignment = TextAnchor.UpperLeft;
-            UiKit.Size(Body.gameObject, -1f, 360f);
+            Body.gameObject.AddComponent<LayoutElement>().minHeight = 360f;
 
             var hint = UiKit.Text(Root, "Hint", 12f, TextAlignmentOptions.Left);
             hint.text = "Drag the title bar to move. The position is remembered.";
