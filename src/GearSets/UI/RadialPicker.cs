@@ -157,17 +157,10 @@ namespace GearSets.UI
             {
                 SwapPlan plan = SwapPlanner.Plan(s, snap.Facts);
                 HotbarPlan hot = s.HasHotbar ? HotbarPlanner.Plan(s, snap.Facts) : null;
-                int missing;
-                SetState st = SetStatus.Of(plan, hot, out missing);
-                States.Add(st == SetState.Equipped ? "Already wearing" : SetStatus.Label(st, missing));
-                Colors.Add(st == SetState.Equipped ? UiKit.Equipped : st == SetState.Missing ? UiKit.Warn : UiKit.Muted);
-                var names = new List<string>();
-                foreach (ReportLine l in plan.Lines)
-                    if (l.Outcome == Outcome.Missing)
-                        names.Add(Loc.T(l.Wanted.Name));
-                int changes = plan.Steps.Count + (hot != null ? hot.Moves.Count : 0);
-                Details.Add(names.Count > 0 ? "Missing: " + ReportText.JoinAnd(names)
-                    : changes == 0 ? "Nothing to change." : changes == 1 ? "1 change." : changes + " changes.");
+                RadialText.Entry text = RadialText.For(plan, hot, Loc.T);
+                States.Add(text.Subtitle);
+                Colors.Add(text.State == SetState.Equipped ? UiKit.Equipped : text.State == SetState.Missing ? UiKit.Warn : UiKit.Muted);
+                Details.Add(text.Description);
             }
         }
 
