@@ -39,6 +39,7 @@ namespace GearSets.Core
             _plan = SwapPlanner.Plan(set, snap.Facts);
             Log("plan for " + set.Name, _plan.Steps);
             Run(p, snap, _plan.Steps);
+            WatchQueued(p, snap, _plan);
             if (Watch.Count > 0)
                 p.Message(MessageHud.MessageType.TopLeft, "Equipping " + set.Name + "…");
             _phase = 1;
@@ -126,6 +127,27 @@ namespace GearSets.Core
                             p.EquipItem(it, true);
                         break;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Items of this plan already in the vanilla queue (from an earlier press) produce no step,
+        /// but the swap isn't done until they are: wait for them too.
+        /// </summary>
+        private static void WatchQueued(Player p, Snapshot s, SwapPlan plan)
+        {
+            var used = new HashSet<ItemDrop.ItemData>();
+            foreach (Step step in plan.Steps)
+                used.Add(s.Of(step.Item));
+            foreach (ReportLine l in plan.Lines)
+                if (l.Used != null)
+                    used.Add(s.Of(l.Used));
+            foreach (Player.MinorActionData a in p.m_actionQueue)
+            {
+                if (a.m_item == null || !used.Contains(a.m_item) || Watch.Contains(a.m_item))
+                    continue;
+                if (a.m_type == Player.MinorActionData.ActionType.Equip || a.m_type == Player.MinorActionData.ActionType.Unequip)
+                    Watch.Add(a.m_item);
             }
         }
 
