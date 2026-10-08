@@ -13,6 +13,7 @@ namespace GearSets.Core
             {
                 if (UI.RadialPicker.IsOpen)
                     UI.RadialPicker.Close();
+                Safe("GearSets: closing the built-in radial failed", UI.BuiltInRadial.CloseIfOpen);
                 return;
             }
             // A failing tick resets its state, so a swap can't stay busy and the radial can't stay open.

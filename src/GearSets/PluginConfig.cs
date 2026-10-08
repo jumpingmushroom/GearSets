@@ -11,6 +11,14 @@ namespace GearSets
         TopRight
     }
 
+    public enum RadialStyle
+    {
+        /// <summary>Valheim's own radial menu.</summary>
+        BuiltIn,
+        /// <summary>GearSets' own hold-and-point ring.</summary>
+        Classic
+    }
+
     public static class PluginConfig
     {
         // General
@@ -21,6 +29,8 @@ namespace GearSets
         // Radial
         public static ConfigEntry<bool> RadialEnabled;
         public static ConfigEntry<KeyboardShortcut> RadialKey;
+        public static ConfigEntry<RadialStyle> RadialStyle;
+        public static ConfigEntry<bool> ShowInMainRadial;
 
         // UI
         public static ConfigEntry<float> WindowScale;
@@ -60,10 +70,15 @@ namespace GearSets
                     "(about one second per armour piece, interrupted by jumping, dodging, attacking or running).", null, Attr(90)));
 
             RadialEnabled = cfg.Bind("Radial", "RadialEnabled", true,
-                new ConfigDescription("Hold the radial key in the world to pick a set.", null, Attr(80)));
+                new ConfigDescription("The radial key opens a radial of your gear sets in the world.", null, Attr(80)));
             RadialKey = cfg.Bind("Radial", "RadialKey", new KeyboardShortcut(KeyCode.H),
-                new ConfigDescription("Hold to open the gear set radial; release over a set to equip it. " +
-                    "G is the vanilla radial and T the emote wheel.", null, Attr(75)));
+                new ConfigDescription("Opens the gear set radial. Tap or hold it like the vanilla radial key (G); " +
+                    "T is the emote wheel.", null, Attr(75)));
+            RadialStyle = cfg.Bind("Radial", "RadialStyle", GearSets.RadialStyle.BuiltIn,
+                new ConfigDescription("BuiltIn uses Valheim's own radial menu. Classic is GearSets' own ring: " +
+                    "hold the key, point at a set, release to equip.", null, Attr(74)));
+            ShowInMainRadial = cfg.Bind("Radial", "ShowInMainRadial", true,
+                new ConfigDescription("Add a Gear Sets group to Valheim's radial menu (G, or the gamepad radial).", null, Attr(73)));
 
             WindowScale = cfg.Bind("UI", "WindowScale", 1f,
                 new ConfigDescription("Size of the Gear Sets window.", new AcceptableValueRange<float>(0.6f, 1.6f), Attr(70)));

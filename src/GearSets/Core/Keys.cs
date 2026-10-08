@@ -20,6 +20,11 @@ namespace GearSets.Core
             return s.MainKey != KeyCode.None && UnityInput.Current.GetKey(s.MainKey);
         }
 
+        public static bool Up(KeyboardShortcut s)
+        {
+            return s.MainKey != KeyCode.None && UnityInput.Current.GetKeyUp(s.MainKey);
+        }
+
         private static bool Modifiers(KeyboardShortcut s)
         {
             foreach (KeyCode m in s.Modifiers)

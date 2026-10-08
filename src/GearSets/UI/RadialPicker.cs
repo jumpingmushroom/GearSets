@@ -10,9 +10,11 @@ using UnityEngine.UI;
 namespace GearSets.UI
 {
     /// <summary>
-    /// Hold the radial key in the world: sets on a ring, point with the mouse, release to equip.
-    /// The cursor stays locked; direction comes from accumulated mouse movement, while camera look
-    /// and attacks are frozen (PlayerPatches). Release near the centre or right-click to cancel.
+    /// The radial key's entry point (BuiltInRadial by default), and the Classic picker, used when
+    /// RadialStyle = Classic or after the built-in radial failed. Classic: hold the radial key in
+    /// the world, sets on a ring, point with the mouse, release to equip. The cursor stays locked;
+    /// direction comes from accumulated mouse movement, while camera look and attacks are frozen
+    /// (PlayerPatches). Release near the centre or right-click to cancel.
     /// </summary>
     internal static class RadialPicker
     {
@@ -47,8 +49,13 @@ namespace GearSets.UI
         {
             if (!IsOpen)
             {
-                if (PluginConfig.RadialEnabled.Value && Keys.Down(PluginConfig.RadialKey.Value) && CanOpen())
-                    Open();
+                if (PluginConfig.RadialEnabled.Value && Keys.Down(PluginConfig.RadialKey.Value)
+                    && !BuiltInRadial.JustClosedByKey && CanOpen())
+                {
+                    // Built-in first; if it throws (e.g. after a game update) Classic takes over.
+                    if (!BuiltInRadial.UseForKey || !BuiltInRadial.TryOpen())
+                        Open();
+                }
                 return;
             }
             Player p = Player.m_localPlayer;
@@ -78,7 +85,8 @@ namespace GearSets.UI
         private static bool CanOpen()
         {
             Player p = Player.m_localPlayer;
-            if (p == null || p.IsDead() || !p.TakeInput() || Hud.instance == null || Hud.InRadial() || ConfigManagerAdapter.WindowOpen)
+            if (p == null || p.IsDead() || !p.TakeInput() || Hud.instance == null || Hud.InRadial()
+                || Hud.IsPieceSelectionVisible() || ConfigManagerAdapter.WindowOpen)
                 return false;
             if (SetStore.Book.Sets.Count == 0)
             {
