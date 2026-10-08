@@ -43,6 +43,11 @@ namespace GearSets
             Logger.LogInfo(PluginName + " " + PluginVersion + " loaded.");
         }
 
+        private void Update()
+        {
+            Core.Runtime.Tick();
+        }
+
         private void OnDestroy()
         {
             if (Harmony != null)

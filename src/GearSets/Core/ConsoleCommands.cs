@@ -43,6 +43,15 @@ namespace GearSets.Core
                     Say(ctx, s != null ? "GearSets: saved " + s.Name + "." : "GearSets: " + error);
                     break;
                 }
+                case "equip":
+                {
+                    GearSet s = SetStore.Book.FindByName(rest);
+                    if (s == null)
+                        Say(ctx, "GearSets: no set named " + rest + ".");
+                    else
+                        SwapExecutor.Equip(s);
+                    break;
+                }
                 case "delete":
                 {
                     GearSet s = SetStore.Book.FindByName(rest);
