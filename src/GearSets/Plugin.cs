@@ -36,6 +36,9 @@ namespace GearSets
 
             Harmony = new Harmony(PluginGuid);
             Harmony.PatchAll(typeof(GearSetsPlugin).Assembly);
+            Integrations.Adapters.Init(Harmony);
+            Core.ConsoleCommands.Register();
+            PluginConfig.MaxSets.SettingChanged += (s, e) => Core.SetStore.Book.MaxSets = PluginConfig.MaxSets.Value;
 
             Logger.LogInfo(PluginName + " " + PluginVersion + " loaded.");
         }
