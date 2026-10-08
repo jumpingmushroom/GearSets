@@ -1,0 +1,9 @@
+{
+  "name": "GearSets",
+  "version_number": "0.1.0",
+  "website_url": "https://github.com/jumpingmushroom/GearSets",
+  "dependencies": [
+    "denikson-BepInExPack_Valheim-5.4.2350"
+  ],
+  "description": "WoW-style gear sets: save what you wear and your hotbar as named sets, swap back with one click or a hold-key radial. Missing items are named, set items are protected. Client-side."
+}
