@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using GearSets.Core;
 using GearSets.Core.Model;
@@ -127,12 +128,20 @@ namespace GearSets.UI
             Render();
         }
 
-        private static void Close()
+        /// <summary>Safe to call any time: also from Runtime when a tick throws or the mod is disabled.</summary>
+        internal static void Close()
         {
             IsOpen = false;
             _hover = -1;
-            if (_root != null)
-                _root.gameObject.SetActive(false);
+            try
+            {
+                if (_root != null)
+                    _root.gameObject.SetActive(false);
+            }
+            catch (Exception e)
+            {
+                GearSetsPlugin.WarnOnce("GearSets: closing the radial failed", e);
+            }
         }
 
         private static void Statuses()

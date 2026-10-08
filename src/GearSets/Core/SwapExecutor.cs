@@ -172,7 +172,7 @@ namespace GearSets.Core
             p.GetInventory().Changed();
         }
 
-        private static void Reset()
+        internal static void Reset()
         {
             _phase = 0;
             _set = null;
