@@ -8,6 +8,7 @@ namespace GearSets.Integrations
         {
             ExtraSlotsAdapter.Init();
             ConfigManagerAdapter.Init();
+            QuickStackAdapter.Init(harmony);
         }
     }
 }
