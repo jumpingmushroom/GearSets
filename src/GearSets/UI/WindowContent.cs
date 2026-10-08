@@ -10,6 +10,8 @@ namespace GearSets.UI
     {
         private static SetListView _list;
         private static SetDetailView _detail;
+        private static RectTransform _builtInto;
+        private static bool _subscribed;
         private static readonly Dictionary<string, SetState> States = new Dictionary<string, SetState>();
         private static readonly Dictionary<string, int> Missing = new Dictionary<string, int>();
 
@@ -17,13 +19,20 @@ namespace GearSets.UI
 
         public static void EnsureBuilt()
         {
-            if (_list != null || GearSetsWindow.Body == null)
+            RectTransform body = GearSetsWindow.Body;
+            if (body == null || (_list != null && _builtInto == body))
                 return;
-            _list = new SetListView(GearSetsWindow.Body);
+            // The window is rebuilt after a logout (the old InventoryGui was destroyed): build into the new body.
+            _builtInto = body;
+            _list = new SetListView(body);
             _list.Selected = s => Select(s.Id);
-            _detail = new SetDetailView(GearSetsWindow.Body, GearSetsWindow.Template);
+            _detail = new SetDetailView(body, GearSetsWindow.Template);
             SetDetailView.RenameClicked = SaveDialog.OpenEdit;
-            GearSetsWindow.Refreshing += Render;
+            if (!_subscribed)
+            {
+                _subscribed = true;
+                GearSetsWindow.Refreshing += Render;
+            }
         }
 
         public static void Select(string id)
@@ -34,6 +43,9 @@ namespace GearSets.UI
 
         private static void Render()
         {
+            EnsureBuilt();
+            if (_list == null || _builtInto == null)
+                return;
             Player p = Player.m_localPlayer;
             List<GearSet> sets = SetStore.Book.Sets;
             if (SetStore.Book.Find(SelectedId) == null)

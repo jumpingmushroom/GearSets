@@ -186,6 +186,7 @@ namespace GearSets.UI
         {
             if (_root != null)
                 return;
+            Nodes.Clear(); // a rebuild after a logout: the old nodes went with the old Hud
             Transform parent = Hud.instance.m_rootObject.transform;
             _root = UiKit.Rect("GearSetsRadial", parent);
             UiKit.Stretch(_root);

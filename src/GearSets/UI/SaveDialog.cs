@@ -84,15 +84,27 @@ namespace GearSets.UI
             Render();
         }
 
-        private static void Close()
+        /// <summary>Also called on inventory Show, so a dialog left open never outlives its snapshot or set.</summary>
+        internal static void Close()
         {
             if (_root != null)
                 _root.gameObject.SetActive(false);
             _snap = null;
         }
 
+        /// <summary>The set being edited was deleted (or the character changed) while the dialog was open.</summary>
+        private static bool EditingGone()
+        {
+            return _editing != null && SetStore.Book.Find(_editing.Id) == null;
+        }
+
         private static void Save()
         {
+            if (EditingGone())
+            {
+                Close();
+                return;
+            }
             if (_editing != null)
             {
                 string err = SetActions.Rename(_editing, _name);
@@ -121,6 +133,11 @@ namespace GearSets.UI
 
         private static void Render()
         {
+            if (EditingGone())
+            {
+                Close();
+                return;
+            }
             UiKit.SetLabel(_nameButton, _name, UiKit.TextColor);
 
             while (IconButtons.Count < Mathf.Min(_iconChoices.Count, 9))
@@ -197,6 +214,11 @@ namespace GearSets.UI
         {
             if (_root != null)
                 return;
+            // A rebuild after a logout: the old buttons went with the old window.
+            IconButtons.Clear();
+            SlotToggles.Clear();
+            for (int i = 0; i < HotToggles.Length; i++)
+                HotToggles[i] = null;
             RectTransform window = GearSetsWindow.Root;
             Button template = GearSetsWindow.Template;
             _root = UiKit.Rect("SaveDialog", window);

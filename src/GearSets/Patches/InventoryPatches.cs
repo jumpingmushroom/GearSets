@@ -12,6 +12,7 @@ namespace GearSets.Patches
         {
             try
             {
+                SaveDialog.Close();
                 if (!PluginConfig.Enabled.Value)
                     return;
                 GearSetsTab.Ensure(__instance);
