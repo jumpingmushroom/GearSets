@@ -13,7 +13,9 @@ in the world.
   when you equip the set.
 - **Follows the exact item**: a set remembers the very copy you saved, wherever it moves. If it is
   gone, the best item of the same type is used and the message says so.
-- **Radial picker**: hold **H** in the world, point at a set, release to equip.
+- **Radial picker**: built into Valheim's own radial menu. Press or hold **H** to open it on your sets,
+  or open the **Gear Sets** group in the radial (**G**, or the gamepad radial). Each set shows its
+  status and any missing items.
 - **Respects the game**: equipping uses the normal equip time (about a second per armour piece)
   and can be interrupted by jumping or dodging; use the set again to finish. `InstantSwap` in the
   config equips everything at once.
@@ -39,7 +41,8 @@ Each integration can be switched off in the config.
 
 ## Configuration
 
-`BepInEx/config/com.jumpingmushroom.gearsets.cfg`: MaxSets, InstantSwap, RadialKey, window scale
-and position, tooltip line, cell marker and its corner, each protection prompt, each integration.
+`BepInEx/config/com.jumpingmushroom.gearsets.cfg`: MaxSets, InstantSwap, RadialKey, radial style
+(built-in or classic), the Gear Sets group in the radial, window scale and position, tooltip line,
+cell marker and its corner, each protection prompt, each integration.
 
 Client-side only; nothing to install on the server. Sets are saved with your character.
