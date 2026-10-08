@@ -153,6 +153,9 @@ namespace GearSets.UI
             _count.color = UiKit.Muted;
             _count.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
 
+            Button saveNew = UiKit.Button(TitleBar, "SaveNew", Template, "+ Save current as new set", SaveDialog.OpenNew);
+            UiKit.Size(saveNew.gameObject, 210f, 32f);
+
             Button close = UiKit.Button(TitleBar, "Close", Template, "X", Close);
             UiKit.Size(close.gameObject, 36f, 32f);
 

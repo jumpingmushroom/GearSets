@@ -24,4 +24,26 @@ namespace GearSets.Patches
             }
         }
     }
+
+    /// <summary>
+    /// InventoryGui.Update closes the inventory on Use (E), Inventory (Tab) and Esc without checking
+    /// the text popup, so typing a set name would close it. Skip it only while our name popup is up.
+    /// </summary>
+    [HarmonyPatch(typeof(InventoryGui), "Update")]
+    internal static class InventoryUpdateGuard
+    {
+        private static bool Prefix()
+        {
+            try
+            {
+                NameInput.Poll();
+                return !(NameInput.Pending && TextInput.IsVisible());
+            }
+            catch (Exception e)
+            {
+                GearSetsPlugin.WarnOnce("GearSets: inventory update guard failed", e);
+                return true;
+            }
+        }
+    }
 }

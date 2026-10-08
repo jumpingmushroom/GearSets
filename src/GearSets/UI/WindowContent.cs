@@ -22,6 +22,7 @@ namespace GearSets.UI
             _list = new SetListView(GearSetsWindow.Body);
             _list.Selected = s => Select(s.Id);
             _detail = new SetDetailView(GearSetsWindow.Body, GearSetsWindow.Template);
+            SetDetailView.RenameClicked = SaveDialog.OpenEdit;
             GearSetsWindow.Refreshing += Render;
         }
 
