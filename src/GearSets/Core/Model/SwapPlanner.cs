@@ -35,7 +35,9 @@ namespace GearSets.Core.Model
         /// <summary>
         /// Hands as a pair. A two-handed item can't share: the right hand wins. Order is left then
         /// right (so AutoShield sees the shield already on), except a torch, which only goes to the
-        /// left hand once a one-handed weapon is in the right.
+        /// left hand once a one-handed weapon is in the right and the left is empty: so it comes
+        /// last, after whatever else is in the left hand is taken off. With a right-hand item in the
+        /// set, a left-hand torch counts as worn only in the left hand.
         /// </summary>
         private static void PlanHands(GearSet set, InventorySnapshot snap, HashSet<int> taken, SwapPlan plan,
             List<Step> unequips, List<Step> hands)
@@ -63,8 +65,11 @@ namespace GearSets.Core.Model
                 leftSkipped = true;
             }
 
+            bool leftTorch = l != null && l.Fits == FitSlot.Torch;
+            bool torchStrict = leftTorch && right.Mode == EntryMode.Item;
             var rightSteps = new List<Step>();
             var leftSteps = new List<Step>();
+            var clearLeft = new List<Step>();
             if (right.Mode == EntryMode.Item)
             {
                 if (r == null)
@@ -77,8 +82,13 @@ namespace GearSets.Core.Model
                 if (l == null)
                     plan.Lines.Add(new ReportLine("Left hand", Outcome.Missing, left.Item, null, null));
                 else
-                    Commit(left.Item, l, ls, "Left hand", WornSlot.LeftHand, taken, plan, leftSteps);
+                    Commit(left.Item, l, ls, "Left hand", WornSlot.LeftHand, taken, plan, leftSteps, torchStrict);
             }
+
+            // A torch replaces the right-hand item unless the left hand is empty: clear it first.
+            bool torchWorn = leftTorch && (l.Worn == WornSlot.LeftHand || (!torchStrict && Slots.IsHand(l.Worn)));
+            if (leftTorch && !torchWorn && wornL != null && !taken.Contains(wornL.Index))
+                Remove(wornL, "Left hand", plan, clearLeft);
 
             if (right.Mode == EntryMode.Empty && wornR != null && !taken.Contains(wornR.Index))
                 Remove(wornR, "Right hand", plan, unequips);
@@ -92,9 +102,10 @@ namespace GearSets.Core.Model
                 && wornR != null && !taken.Contains(wornR.Index))
                 plan.Lines.Add(new ReportLine("Right hand", Outcome.Cleared, null, wornR, null));
 
-            if (l != null && l.Fits == FitSlot.Torch)
+            if (leftTorch)
             {
                 hands.AddRange(rightSteps);
+                hands.AddRange(clearLeft);
                 hands.AddRange(leftSteps);
             }
             else
@@ -165,11 +176,12 @@ namespace GearSets.Core.Model
             rest.AddRange(equips);
         }
 
+        /// <summary>Hand items count as worn in either hand unless <paramref name="exactHand"/>.</summary>
         private static void Commit(ItemRef want, ItemFacts item, bool substitute, string label, WornSlot target,
-            HashSet<int> taken, SwapPlan plan, List<Step> into)
+            HashSet<int> taken, SwapPlan plan, List<Step> into, bool exactHand = false)
         {
             taken.Add(item.Index);
-            bool worn = item.Worn == target || (Slots.IsHand(target) && Slots.IsHand(item.Worn));
+            bool worn = item.Worn == target || (!exactHand && Slots.IsHand(target) && Slots.IsHand(item.Worn));
             if (worn)
             {
                 if (item.Queued == QueuedAs.Unequip)

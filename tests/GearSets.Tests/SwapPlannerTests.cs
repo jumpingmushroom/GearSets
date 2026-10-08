@@ -43,6 +43,58 @@ namespace GearSets.Tests
         }
 
         [Fact]
+        public void SwordAndShieldToSwordAndTorchTakesTheShieldOffFirst()
+        {
+            ItemFacts sword = T.Item("SwordIron", FitSlot.RightHand, tag: "s", worn: WornSlot.RightHand);
+            ItemFacts shield = T.Item("ShieldBanded", FitSlot.LeftHand, tag: "sh", worn: WornSlot.LeftHand);
+            ItemFacts torch = T.Item("Torch", FitSlot.Torch, tag: "t");
+            GearSet set = T.Set();
+            set.Slots[SlotKind.RightHand] = SlotEntry.Of(T.Ref(sword));
+            set.Slots[SlotKind.LeftHand] = SlotEntry.Of(T.Ref(torch));
+            SwapPlan p = SwapPlanner.Plan(set, T.Snap(sword, shield, torch));
+            Assert.Equal("Unequip:ShieldBanded Equip:Torch", Describe(p));
+            Assert.Equal(1, p.Count(Outcome.Unequip));
+        }
+
+        [Fact]
+        public void AxeAndShieldToSwordAndTorchEquipsSwordThenClearsLeftThenTorch()
+        {
+            ItemFacts axe = T.Item("AxeIron", FitSlot.RightHand, tag: "a", worn: WornSlot.RightHand);
+            ItemFacts shield = T.Item("ShieldBanded", FitSlot.LeftHand, tag: "sh", worn: WornSlot.LeftHand);
+            ItemFacts sword = T.Item("SwordIron", FitSlot.RightHand, tag: "s");
+            ItemFacts torch = T.Item("Torch", FitSlot.Torch, tag: "t");
+            GearSet set = T.Set();
+            set.Slots[SlotKind.RightHand] = SlotEntry.Of(T.Ref(sword));
+            set.Slots[SlotKind.LeftHand] = SlotEntry.Of(T.Ref(torch));
+            SwapPlan p = SwapPlanner.Plan(set, T.Snap(axe, shield, sword, torch));
+            Assert.Equal("Equip:SwordIron Unequip:ShieldBanded Equip:Torch", Describe(p));
+        }
+
+        [Fact]
+        public void TorchInRightHandIsNotWornForTheLeftWhenTheSetWantsARightItem()
+        {
+            ItemFacts torch = T.Item("Torch", FitSlot.Torch, tag: "t", worn: WornSlot.RightHand);
+            ItemFacts sword = T.Item("SwordIron", FitSlot.RightHand, tag: "s");
+            GearSet set = T.Set();
+            set.Slots[SlotKind.RightHand] = SlotEntry.Of(T.Ref(sword));
+            set.Slots[SlotKind.LeftHand] = SlotEntry.Of(T.Ref(torch));
+            SwapPlan p = SwapPlanner.Plan(set, T.Snap(torch, sword));
+            Assert.Equal("Equip:SwordIron Equip:Torch", Describe(p));
+            Assert.Equal(0, p.Count(Outcome.AlreadyWorn));
+        }
+
+        [Fact]
+        public void SwordAndTorchWornIsNothingToDo()
+        {
+            ItemFacts sword = T.Item("SwordIron", FitSlot.RightHand, tag: "s", worn: WornSlot.RightHand);
+            ItemFacts torch = T.Item("Torch", FitSlot.Torch, tag: "t", worn: WornSlot.LeftHand);
+            GearSet set = T.Set();
+            set.Slots[SlotKind.RightHand] = SlotEntry.Of(T.Ref(sword));
+            set.Slots[SlotKind.LeftHand] = SlotEntry.Of(T.Ref(torch));
+            Assert.True(SwapPlanner.Plan(set, T.Snap(sword, torch)).NothingToDo);
+        }
+
+        [Fact]
         public void AlreadyWornIsNothingToDo()
         {
             ItemFacts chest = T.Item("ArmorIronChest", FitSlot.Chest, tag: "c", worn: WornSlot.Chest);
